@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { uploadToCloudinary } from "../components/cloudinary";
 import { getGenerativeReplaceUrl, getGenerativeRemoveUrl } from "../components/cloudinaryGen";
+import HairstyleSelector from "../components/HairstyleSelector";
 
 export default function Home() {
   const [fromPrompt, setFromPrompt] = useState("hair");
@@ -16,6 +17,11 @@ export default function Home() {
   const [removeUrl, setRemoveUrl] = useState<string | null>(null);
   const [publicId, setPublicId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  const handleHairstyleSelect = (from: string, to: string) => {
+    setFromPrompt(from);
+    setToPrompt(to);
+  };
 
   const handleGenerativeRemove = () => {
     if (publicId) {
@@ -72,12 +78,26 @@ export default function Home() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#18191a' }} contentContainerStyle={styles.container}>
+    <ScrollView 
+      style={{ flex: 1, backgroundColor: '#18191a' }} 
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={true}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text style={styles.title}>Welcome {auth.currentUser?.email}</Text>
+      
+      <Text style={{ color: '#888', fontSize: 14, marginBottom: 10, textAlign: 'center' }}>
+        Choose a hairstyle below, then upload your photo
+      </Text>
+
+      <HairstyleSelector 
+        onSelect={handleHairstyleSelect} 
+        selectedStyle={toPrompt} 
+      />
 
       <View style={{ width: '100%', alignItems: 'center', marginBottom: 16 }}>
         <Text style={{ marginBottom: 8, fontWeight: 'bold', fontSize: 16, color: '#fff' }}>
-          What object or region in the image do you want to replace?
+          Or manually type what you want to replace:
         </Text>
         <TextInput
           value={fromPrompt}
@@ -96,12 +116,18 @@ export default function Home() {
         />
       </View>
 
-      <Button title="Pick and Upload Photo" onPress={pickImage} />
+      <View style={{ marginVertical: 20, width: '100%', alignItems: 'center' }}>
+        <Button title="Pick and Upload Photo" onPress={pickImage} />
+      </View>
+      
       {publicId && (
-        <Button title={`Apply Generative Remove (remove '${fromPrompt}')`} onPress={handleGenerativeRemove} color="#8e44ad" />
+        <View style={{ marginVertical: 10, width: '100%', alignItems: 'center' }}>
+          <Button title={`Apply Generative Remove (remove '${fromPrompt}')`} onPress={handleGenerativeRemove} color="#8e44ad" />
+        </View>
       )}
+      
       {removeUrl && (
-        <View style={{ alignItems: "center" }}>
+        <View style={{ alignItems: "center", marginTop: 20 }}>
           <Text style={{ color: '#fff' }}>Generative Remove Image:</Text>
           <Image
             source={{ uri: removeUrl }}
@@ -113,31 +139,39 @@ export default function Home() {
       {uploading && <ActivityIndicator size="large" color="#00bfff" style={{ margin: 20 }} />}
 
       {image && (
-        <View style={{ alignItems: "center" }}>
-          <Text style={{ color: '#fff' }}>Original Cloudinary Image:</Text>
+        <View style={{ alignItems: "center", marginTop: 20 }}>
+          <Text style={{ color: '#fff', marginBottom: 10 }}>Original Cloudinary Image:</Text>
           <Image
             source={{ uri: image }}
-            style={{ width: 200, height: 200, marginTop: 20, borderRadius: 10 }}
+            style={{ width: 200, height: 200, marginTop: 10, borderRadius: 10 }}
           />
         </View>
       )}
       {generativeUrl && (
-        <View style={{ alignItems: "center" }}>
-          <Text style={{ color: '#fff' }}>Generative Replace Image:</Text>
+        <View style={{ alignItems: "center", marginTop: 20 }}>
+          <Text style={{ color: '#fff', marginBottom: 10 }}>Generative Replace Image:</Text>
           <Image
             source={{ uri: generativeUrl }}
-            style={{ width: 200, height: 200, marginTop: 20, borderRadius: 10 }}
+            style={{ width: 200, height: 200, marginTop: 10, borderRadius: 10 }}
           />
         </View>
       )}
 
-      <Button title="Logout" onPress={logout} color="red" />
+      <View style={{ marginTop: 30, marginBottom: 20, width: '100%', alignItems: 'center' }}>
+        <Button title="Logout" onPress={logout} color="red" />
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: '#18191a' },
+  container: { 
+    flexGrow: 1, 
+    alignItems: "center", 
+    padding: 20, 
+    backgroundColor: '#18191a',
+    paddingBottom: 40  // Add extra padding at bottom
+  },
   title: { fontSize: 20, marginBottom: 20, color: '#fff' },
 });
 
