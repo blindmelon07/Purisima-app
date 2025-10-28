@@ -9,12 +9,12 @@ const cld = new Cloudinary({
 });
 
 export function getGenerativeReplaceUrl(publicId: string, from: string, to: string) {
-  // More conservative approach - only replace hair while preserving face
-  const improvedToPrompt = to.includes('same person') ? to : `${to}, keep same person, preserve face`;
+  // Very specific prompt to only change hair, preserve everything else
+  const conservativePrompt = `${to}, keep same face, preserve facial features, same skin tone, same person identity, only change hair`;
   
   return cld
     .image(publicId)
-    .effect(generativeReplace().from(from).to(improvedToPrompt).preserveGeometry(true))
+    .effect(generativeReplace().from(from).to(conservativePrompt).preserveGeometry(true))
     .toURL();
 }
 

@@ -9,8 +9,8 @@ import { getGenerativeReplaceUrl, getGenerativeRemoveUrl } from "../components/c
 import HairstyleSelector from "../components/HairstyleSelector";
 
 export default function Home() {
-  const [fromPrompt, setFromPrompt] = useState("hairstyle");
-  const [toPrompt, setToPrompt] = useState("curly hair with bangs, same person");
+  const [fromPrompt, setFromPrompt] = useState("hair only");
+  const [toPrompt, setToPrompt] = useState("curly hair with bangs");
   const router = useRouter();
   const [image, setImage] = useState<string | null>(null);
   const [generativeUrl, setGenerativeUrl] = useState<string | null>(null);
@@ -97,25 +97,25 @@ export default function Home() {
 
       <View style={{ width: '100%', alignItems: 'center', marginBottom: 16 }}>
         <Text style={{ marginBottom: 8, fontWeight: 'bold', fontSize: 16, color: '#fff' }}>
-          Or manually type what you want to replace:
+          Or manually specify hair changes only:
         </Text>
         <TextInput
           value={fromPrompt}
           onChangeText={setFromPrompt}
-          placeholder="e.g. hairstyle, hat, shirt"
+          placeholder="e.g. hair only, current hairstyle"
           placeholderTextColor="#aaa"
           style={{ borderWidth: 1, borderColor: '#888', borderRadius: 8, padding: 10, marginBottom: 12, width: 260, backgroundColor: '#222', color: '#fff', fontSize: 16 }}
         />
-        <Text style={{ marginBottom: 8, color: '#fff' }}>To (desired replacement):</Text>
+        <Text style={{ marginBottom: 8, color: '#fff' }}>To (new hairstyle only):</Text>
         <TextInput
           value={toPrompt}
           onChangeText={setToPrompt}
-          placeholder="e.g. curly hair with bangs, same person"
+          placeholder="e.g. short bob, long wavy hair"
           placeholderTextColor="#aaa"
           style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 8, marginBottom: 8, width: 220, backgroundColor: '#222', color: '#fff', fontSize: 16 }}
         />
         <Text style={{ fontSize: 12, color: '#888', textAlign: 'center', marginBottom: 12, paddingHorizontal: 20 }}>
-          💡 Tip: Add "same person" to keep your face unchanged
+          � Your face will stay exactly the same - only hair changes!
         </Text>
       </View>
 
