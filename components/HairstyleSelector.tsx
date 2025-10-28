@@ -14,43 +14,43 @@ const hairstyleOptions: HairstyleOption[] = [
     id: '1',
     name: 'Curly Hair',
     image: 'https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=150&h=150&fit=crop&crop=face',
-    fromPrompt: 'hair',
-    toPrompt: 'curly hair with volume'
+    fromPrompt: 'hairstyle',
+    toPrompt: 'curly hair with volume, same person'
   },
   {
     id: '2',
     name: 'Long Hair',
     image: 'https://images.unsplash.com/photo-1580618432485-c0607d04b2b5?w=150&h=150&fit=crop&crop=face',
-    fromPrompt: 'hair',
-    toPrompt: 'long straight hair'
+    fromPrompt: 'hairstyle',
+    toPrompt: 'long straight hair, same person'
   },
   {
     id: '3',
     name: 'Short Bob',
     image: 'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?w=150&h=150&fit=crop&crop=face',
-    fromPrompt: 'hair',
-    toPrompt: 'short bob haircut'
+    fromPrompt: 'hairstyle',
+    toPrompt: 'short bob haircut, same person'
   },
   {
     id: '4',
     name: 'Pixie Cut',
     image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face',
-    fromPrompt: 'hair',
-    toPrompt: 'pixie cut hairstyle'
+    fromPrompt: 'hairstyle',
+    toPrompt: 'pixie cut hairstyle, same person'
   },
   {
     id: '5',
     name: 'Braided Hair',
     image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=150&h=150&fit=crop&crop=face',
-    fromPrompt: 'hair',
-    toPrompt: 'braided hairstyle'
+    fromPrompt: 'hairstyle',
+    toPrompt: 'braided hairstyle, same person'
   },
   {
     id: '6',
     name: 'Wavy Hair',
     image: 'https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=150&h=150&fit=crop&crop=face',
-    fromPrompt: 'hair',
-    toPrompt: 'wavy hair with layers'
+    fromPrompt: 'hairstyle',
+    toPrompt: 'wavy hair with layers, same person'
   }
 ];
 

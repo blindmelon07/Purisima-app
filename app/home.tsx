@@ -9,8 +9,8 @@ import { getGenerativeReplaceUrl, getGenerativeRemoveUrl } from "../components/c
 import HairstyleSelector from "../components/HairstyleSelector";
 
 export default function Home() {
-  const [fromPrompt, setFromPrompt] = useState("hair");
-  const [toPrompt, setToPrompt] = useState("curly hair with bangs");
+  const [fromPrompt, setFromPrompt] = useState("hairstyle");
+  const [toPrompt, setToPrompt] = useState("curly hair with bangs, same person");
   const router = useRouter();
   const [image, setImage] = useState<string | null>(null);
   const [generativeUrl, setGenerativeUrl] = useState<string | null>(null);
@@ -110,10 +110,13 @@ export default function Home() {
         <TextInput
           value={toPrompt}
           onChangeText={setToPrompt}
-          placeholder="e.g. curly hair with bangs"
+          placeholder="e.g. curly hair with bangs, same person"
           placeholderTextColor="#aaa"
-          style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 8, marginBottom: 12, width: 220, backgroundColor: '#222', color: '#fff', fontSize: 16 }}
+          style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 8, marginBottom: 8, width: 220, backgroundColor: '#222', color: '#fff', fontSize: 16 }}
         />
+        <Text style={{ fontSize: 12, color: '#888', textAlign: 'center', marginBottom: 12, paddingHorizontal: 20 }}>
+          💡 Tip: Add "same person" to keep your face unchanged
+        </Text>
       </View>
 
       <View style={{ marginVertical: 20, width: '100%', alignItems: 'center' }}>
