@@ -17,6 +17,22 @@ export default function Home() {
   const [publicId, setPublicId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
+  // Predefined hairstyle options
+  const hairstyleOptions = [
+    { label: "Long Hair", value: "long hair", emoji: "💁‍♀️" },
+    { label: "Short Hair", value: "short hair", emoji: "👩‍🦱" },
+    { label: "Curly Hair", value: "curly hair with bangs", emoji: "🌀" },
+    { label: "Straight Hair", value: "straight long hair", emoji: "💇‍♀️" },
+    { label: "Bob Cut", value: "bob haircut", emoji: "👩‍💼" },
+    { label: "Pixie Cut", value: "pixie cut short hair", emoji: "🧚‍♀️" },
+    { label: "Afro Hair", value: "afro hairstyle", emoji: "👩‍🦲" },
+    { label: "Braided Hair", value: "braided hairstyle", emoji: "👸" },
+    { label: "Wavy Hair", value: "wavy hair", emoji: "🌊" },
+    { label: "Ponytail", value: "high ponytail", emoji: "🐴" },
+    { label: "Bangs", value: "hair with bangs", emoji: "💫" },
+    { label: "Bald", value: "bald head", emoji: "👨‍🦲" },
+  ];
+
   const handleGenerativeRemove = () => {
     if (publicId) {
       const url = getGenerativeRemoveUrl(publicId, fromPrompt);
@@ -122,14 +138,25 @@ export default function Home() {
         </View>
         
         <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Replace with:</Text>
-          <TextInput
-            value={toPrompt}
-            onChangeText={setToPrompt}
-            placeholder="e.g. curly hair with bangs"
-            placeholderTextColor="#94a3b8"
-            style={styles.textInput}
-          />
+          <Text style={styles.inputLabel}>Choose Hairstyle:</Text>
+          <View style={styles.hairstyleGrid}>
+            {hairstyleOptions.map((option) => (
+              <Pressable
+                key={option.value}
+                style={[
+                  styles.hairstyleCard,
+                  toPrompt === option.value && styles.selectedCard
+                ]}
+                onPress={() => setToPrompt(option.value)}
+              >
+                <Text style={styles.emoji}>{option.emoji}</Text>
+                <Text style={[
+                  styles.cardLabel,
+                  toPrompt === option.value && styles.selectedCardLabel
+                ]}>{option.label}</Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
       </View>
 
@@ -363,6 +390,49 @@ const styles = StyleSheet.create({
   downloadButtonText: {
     color: '#ffffff',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  hairstyleGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 8,
+  },
+  hairstyleCard: {
+    backgroundColor: '#1e293b',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 85,
+    minHeight: 85,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedCard: {
+    backgroundColor: '#3b82f6',
+    borderColor: '#60a5fa',
+    shadowColor: '#3b82f6',
+    shadowOpacity: 0.3,
+  },
+  emoji: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  cardLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#94a3b8',
+    textAlign: 'center',
+    lineHeight: 14,
+  },
+  selectedCardLabel: {
+    color: '#ffffff',
     fontWeight: '600',
   },
 });
