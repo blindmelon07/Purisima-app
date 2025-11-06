@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { View, Button, Text, StyleSheet, Image, ActivityIndicator, TextInput, ScrollView } from "react-native";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebaseConfig";
-import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
+import { signOut } from "firebase/auth";
+import { useState } from "react";
+import { ActivityIndicator, Alert, Image, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { uploadToCloudinary } from "../components/cloudinary";
-import { getGenerativeReplaceUrl, getGenerativeRemoveUrl } from "../components/cloudinaryGen";
+import { getGenerativeRemoveUrl, getGenerativeReplaceUrl } from "../components/cloudinaryGen";
+import { auth } from "../firebaseConfig";
 
 export default function Home() {
   const [fromPrompt, setFromPrompt] = useState("hair");
@@ -21,6 +21,22 @@ export default function Home() {
     if (publicId) {
       const url = getGenerativeRemoveUrl(publicId, fromPrompt);
       setRemoveUrl(url);
+    }
+  };
+
+  const downloadImage = async (imageUri: string, imageName: string) => {
+    try {
+      // Open the image URL in the browser for download
+      const supported = await Linking.canOpenURL(imageUri);
+      if (supported) {
+        await Linking.openURL(imageUri);
+        Alert.alert('Download', `Opening ${imageName} in browser for download.`);
+      } else {
+        Alert.alert('Error', 'Cannot open image URL.');
+      }
+    } catch (error) {
+      console.error('Error opening image:', error);
+      Alert.alert('Error', 'Failed to open image for download.');
     }
   };
 
@@ -72,72 +88,282 @@ export default function Home() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#18191a' }} contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Welcome {auth.currentUser?.email}</Text>
-
-      <View style={{ width: '100%', alignItems: 'center', marginBottom: 16 }}>
-        <Text style={{ marginBottom: 8, fontWeight: 'bold', fontSize: 16, color: '#fff' }}>
-          What object or region in the image do you want to replace?
-        </Text>
-        <TextInput
-          value={fromPrompt}
-          onChangeText={setFromPrompt}
-          placeholder="e.g. hairstyle, hat, shirt"
-          placeholderTextColor="#aaa"
-          style={{ borderWidth: 1, borderColor: '#888', borderRadius: 8, padding: 10, marginBottom: 12, width: 260, backgroundColor: '#222', color: '#fff', fontSize: 16 }}
-        />
-        <Text style={{ marginBottom: 8, color: '#fff' }}>To (desired replacement):</Text>
-        <TextInput
-          value={toPrompt}
-          onChangeText={setToPrompt}
-          placeholder="e.g. curly hair with bangs"
-          placeholderTextColor="#aaa"
-          style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 8, marginBottom: 12, width: 220, backgroundColor: '#222', color: '#fff', fontSize: 16 }}
-        />
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <Text style={styles.appTitle}>HairStyle App</Text>
+          <Text style={styles.subtitle}>Transform your hairstyle with Us</Text>
+        </View>
+        <Pressable style={styles.logoutButton} onPress={logout}>
+          <Text style={styles.logoutText}>Logout</Text>
+        </Pressable>
       </View>
 
-      <Button title="Pick and Upload Photo" onPress={pickImage} />
-      {publicId && (
-        <Button title={`Apply Generative Remove (remove '${fromPrompt}')`} onPress={handleGenerativeRemove} color="#8e44ad" />
-      )}
-      {removeUrl && (
-        <View style={{ alignItems: "center" }}>
-          <Text style={{ color: '#fff' }}>Generative Remove Image:</Text>
-          <Image
-            source={{ uri: removeUrl }}
-            style={{ width: 200, height: 200, marginTop: 20, borderRadius: 10 }}
+      {/* Welcome Section */}
+      <View style={styles.welcomeCard}>
+        <Text style={styles.welcomeText}>Welcome back!</Text>
+        <Text style={styles.userEmail}>{auth.currentUser?.email}</Text>
+      </View>
+
+      {/* Input Section */}
+      <View style={styles.inputSection}>
+        <Text style={styles.sectionTitle}>Transformation Settings</Text>
+        
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>What to replace:</Text>
+          <TextInput
+            value={fromPrompt}
+            onChangeText={setFromPrompt}
+            placeholder="e.g. hairstyle, hat, shirt"
+            placeholderTextColor="#94a3b8"
+            style={styles.textInput}
           />
         </View>
-      )}
-
-      {uploading && <ActivityIndicator size="large" color="#00bfff" style={{ margin: 20 }} />}
-
-      {image && (
-        <View style={{ alignItems: "center" }}>
-          <Text style={{ color: '#fff' }}>Original Cloudinary Image:</Text>
-          <Image
-            source={{ uri: image }}
-            style={{ width: 200, height: 200, marginTop: 20, borderRadius: 10 }}
+        
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Replace with:</Text>
+          <TextInput
+            value={toPrompt}
+            onChangeText={setToPrompt}
+            placeholder="e.g. curly hair with bangs"
+            placeholderTextColor="#94a3b8"
+            style={styles.textInput}
           />
         </View>
-      )}
-      {generativeUrl && (
-        <View style={{ alignItems: "center" }}>
-          <Text style={{ color: '#fff' }}>Generative Replace Image:</Text>
-          <Image
-            source={{ uri: generativeUrl }}
-            style={{ width: 200, height: 200, marginTop: 20, borderRadius: 10 }}
-          />
+      </View>
+
+      {/* Upload Section */}
+      <View style={styles.uploadSection}>
+        <Pressable style={styles.uploadButton} onPress={pickImage} disabled={uploading}>
+          <Text style={styles.uploadButtonText}>
+            {uploading ? "Processing..." : "📸 Pick & Transform Photo"}
+          </Text>
+        </Pressable>
+        
+        {uploading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#3b82f6" />
+            <Text style={styles.loadingText}>Applying AI magic...</Text>
+          </View>
+        )}
+      </View>
+
+      {/* Results Section */}
+      {(image || generativeUrl || removeUrl) && (
+        <View style={styles.resultsSection}>
+          <Text style={styles.sectionTitle}>Results</Text>
+          
+          <View style={styles.imageGrid}>
+            {/* Original Image */}
+            {image && (
+              <View style={styles.imageCard}>
+                <Text style={styles.imageTitle}>Original</Text>
+                <Image source={{ uri: image }} style={styles.resultImage} />
+              </View>
+            )}
+            
+            {/* Generative Replace Image */}
+            {generativeUrl && (
+              <View style={styles.imageCard}>
+                <Text style={styles.imageTitle}>AI Transform</Text>
+                <Image source={{ uri: generativeUrl }} style={styles.resultImage} />
+                <Pressable 
+                  style={styles.downloadButton}
+                  onPress={() => downloadImage(generativeUrl, 'AI Transform')}
+                >
+                  <Text style={styles.downloadButtonText}>💾 Download</Text>
+                </Pressable>
+              </View>
+            )}
+            
+            {/* Generative Remove Image */}
+            {removeUrl && (
+              <View style={styles.imageCard}>
+                <Text style={styles.imageTitle}>AI Remove</Text>
+                <Image source={{ uri: removeUrl }} style={styles.resultImage} />
+                <Pressable 
+                  style={styles.downloadButton}
+                  onPress={() => downloadImage(removeUrl, 'AI Remove')}
+                >
+                  <Text style={styles.downloadButtonText}>💾 Download</Text>
+                </Pressable>
+              </View>
+            )}
+          </View>
         </View>
       )}
-
-      <Button title="Logout" onPress={logout} color="red" />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: '#18191a' },
-  title: { fontSize: 20, marginBottom: 20, color: '#fff' },
+  container: {
+    flex: 1,
+    backgroundColor: '#0f172a', // Dark slate background
+  },
+  contentContainer: {
+    paddingBottom: 30,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
+    backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  },
+  headerContent: {
+    flex: 1,
+  },
+  appTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#e2e8f0',
+    opacity: 0.9,
+  },
+  logoutButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  logoutText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  welcomeCard: {
+    backgroundColor: '#1e293b',
+    marginHorizontal: 20,
+    marginTop: -10,
+    marginBottom: 20,
+    padding: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  welcomeText: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#f1f5f9',
+    marginBottom: 4,
+  },
+  userEmail: {
+    fontSize: 14,
+    color: '#94a3b8',
+  },
+  inputSection: {
+    marginHorizontal: 20,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#f1f5f9',
+    marginBottom: 16,
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#cbd5e1',
+    marginBottom: 8,
+  },
+  textInput: {
+    backgroundColor: '#334155',
+    borderWidth: 1,
+    borderColor: '#475569',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: '#f1f5f9',
+    minHeight: 50,
+  },
+  uploadSection: {
+    marginHorizontal: 20,
+    marginBottom: 24,
+  },
+  uploadButton: {
+    backgroundColor: '#3b82f6',
+    padding: 18,
+    borderRadius: 16,
+    alignItems: 'center',
+    shadowColor: '#3b82f6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  uploadButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  loadingText: {
+    color: '#94a3b8',
+    fontSize: 16,
+    marginTop: 12,
+  },
+  resultsSection: {
+    marginHorizontal: 20,
+  },
+  imageGrid: {
+    gap: 16,
+  },
+  imageCard: {
+    backgroundColor: '#1e293b',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 6,
+    marginBottom: 16,
+  },
+  imageTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#f1f5f9',
+    marginBottom: 12,
+  },
+  resultImage: {
+    width: 280,
+    height: 280,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  downloadButton: {
+    backgroundColor: '#10b981',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+    minWidth: 140,
+    alignItems: 'center',
+  },
+  downloadButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
 
