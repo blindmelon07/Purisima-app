@@ -19,18 +19,18 @@ export default function Home() {
 
   // Predefined hairstyle options
   const hairstyleOptions = [
-    { label: "Long Hair", value: "long hair", emoji: "💁‍♀️" },
-    { label: "Short Hair", value: "short hair", emoji: "👩‍🦱" },
-    { label: "Curly Hair", value: "curly hair with bangs", emoji: "🌀" },
-    { label: "Straight Hair", value: "straight long hair", emoji: "💇‍♀️" },
-    { label: "Bob Cut", value: "bob haircut", emoji: "👩‍💼" },
-    { label: "Pixie Cut", value: "pixie cut short hair", emoji: "🧚‍♀️" },
-    { label: "Afro Hair", value: "afro hairstyle", emoji: "👩‍🦲" },
-    { label: "Braided Hair", value: "braided hairstyle", emoji: "👸" },
-    { label: "Wavy Hair", value: "wavy hair", emoji: "🌊" },
-    { label: "Ponytail", value: "high ponytail", emoji: "🐴" },
-    { label: "Bangs", value: "hair with bangs", emoji: "💫" },
-    { label: "Bald", value: "bald head", emoji: "👨‍🦲" },
+    { label: "Long Hair", value: "long hair", image: require("../assets/hairstyles/long hair.png") },
+    { label: "Short Hair", value: "short hair", image: require("../assets/hairstyles/short hair.png") },
+    { label: "Curly Hair", value: "curly hair with bangs", image: require("../assets/hairstyles/curly hair.png") },
+    { label: "Straight Hair", value: "straight long hair", image: require("../assets/hairstyles/straighthair.png") },
+    { label: "Bob Cut", value: "bob haircut", image: require("../assets/hairstyles/bob cat.png") },
+    { label: "Pixie Cut", value: "pixie cut short hair", image: require("../assets/hairstyles/pixie cut.png") },
+    { label: "Afro Hair", value: "afro hairstyle", image: require("../assets/hairstyles/alfro.png") },
+    { label: "Braided Hair", value: "braided hairstyle", image: require("../assets/hairstyles/braided.png") },
+    { label: "Wavy Hair", value: "wavy hair", image: require("../assets/hairstyles/wavyhair.png") },
+    { label: "Ponytail", value: "high ponytail", image: require("../assets/hairstyles/ponytail.png") },
+    { label: "Bangs", value: "hair with bangs", image: require("../assets/hairstyles/bangs.png") },
+    { label: "Bald", value: "bald head", image: require("../assets/hairstyles/bald.png") },
   ];
 
   const handleGenerativeRemove = () => {
@@ -149,7 +149,7 @@ export default function Home() {
                 ]}
                 onPress={() => setToPrompt(option.value)}
               >
-                <Text style={styles.emoji}>{option.emoji}</Text>
+                <Image source={option.image} style={styles.hairstyleImage} />
                 <Text style={[
                   styles.cardLabel,
                   toPrompt === option.value && styles.selectedCardLabel
@@ -420,9 +420,11 @@ const styles = StyleSheet.create({
     shadowColor: '#3b82f6',
     shadowOpacity: 0.3,
   },
-  emoji: {
-    fontSize: 24,
-    marginBottom: 4,
+  hairstyleImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    marginBottom: 6,
   },
   cardLabel: {
     fontSize: 11,
