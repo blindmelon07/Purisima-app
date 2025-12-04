@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { View, TextInput, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebaseConfig";
 import { useRouter } from "expo-router";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import React, { useState } from "react";
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { auth } from "../firebaseConfig";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -21,6 +21,11 @@ export default function Register() {
 
   return (
     <View style={styles.container}>
+      <Image 
+        source={require("../assets/logo.jpg")} 
+        style={styles.logo}
+        resizeMode="contain"
+      />
       <Text style={styles.title}>Register</Text>
       <TextInput
         style={styles.input}
@@ -48,7 +53,8 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, justifyContent: "center", padding: 20, backgroundColor: "#fff", alignItems: "center" },
+  logo: { width: 150, height: 150, marginBottom: 30 },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -57,6 +63,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#fff",
     color: "#000",
+    width: "100%",
   },
   title: { fontSize: 24, marginBottom: 20, textAlign: "center", color: "#000" },
   primaryButton: {
@@ -65,6 +72,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 12,
     marginBottom: 12,
+    width: "100%",
   },
   primaryButtonText: {
     color: "#fff",
@@ -76,6 +84,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: "center",
     borderRadius: 12,
+    width: "100%",
   },
   secondaryButtonText: {
     color: "#111827",

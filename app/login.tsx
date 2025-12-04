@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import React, { useState } from "react";
+import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 import { auth } from "../firebaseConfig"; // ✅ use your config
 
 export default function Login({ navigation }: any) {
@@ -18,6 +18,11 @@ export default function Login({ navigation }: any) {
 
   return (
     <View style={styles.container}>
+      <Image 
+        source={require("../assets/logo.jpg")} 
+        style={styles.logo}
+        resizeMode="contain"
+      />
       <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}
@@ -42,7 +47,8 @@ export default function Login({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20 },
-  input: { borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 8 },
+  container: { flex: 1, justifyContent: "center", padding: 20, alignItems: "center" },
+  logo: { width: 150, height: 150, marginBottom: 30 },
+  input: { borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 8, width: "100%" },
   title: { fontSize: 24, marginBottom: 20, textAlign: "center" },
 });
