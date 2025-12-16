@@ -16,6 +16,8 @@ export default function Home() {
   const [removeUrl, setRemoveUrl] = useState<string | null>(null);
   const [publicId, setPublicId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [totalTransformations, setTotalTransformations] = useState(0);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Predefined hairstyle options
   const hairstyleOptions = [
@@ -95,6 +97,8 @@ export default function Home() {
       // Apply generative replace effect with user prompts
       const genUrl = getGenerativeReplaceUrl(publicId, fromPrompt, toPrompt);
       setGenerativeUrl(genUrl);
+      // Increment transformation count
+      setTotalTransformations(prev => prev + 1);
     } catch (error: any) {
       console.error(error);
       alert("Upload failed: " + (error.message || error));
@@ -105,101 +109,176 @@ export default function Home() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text style={styles.appTitle}>HairStyle App</Text>
-          <Text style={styles.subtitle}>Transform your hairstyle with Us</Text>
-        </View>
-        <Pressable style={styles.logoutButton} onPress={logout}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </Pressable>
-      </View>
-
-      {/* Welcome Section */}
-      <View style={styles.welcomeCard}>
-        <Text style={styles.welcomeText}>Welcome back!</Text>
-        <Text style={styles.userEmail}>{auth.currentUser?.email}</Text>
-      </View>
-
-      {/* Input Section */}
-      <View style={styles.inputSection}>
-        <Text style={styles.sectionTitle}>Transformation Settings</Text>
-        
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>What to replace:</Text>
-          <TextInput
-            value={fromPrompt}
-            onChangeText={setFromPrompt}
-            placeholder="e.g. hairstyle, hat, shirt"
-            placeholderTextColor="#94a3b8"
-            style={styles.textInput}
-          />
-        </View>
-        
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Choose Hairstyle:</Text>
-          <View style={styles.hairstyleGrid}>
-            {hairstyleOptions.map((option) => (
-              <Pressable
-                key={option.value}
-                style={[
-                  styles.hairstyleCard,
-                  toPrompt === option.value && styles.selectedCard
-                ]}
-                onPress={() => setToPrompt(option.value)}
-              >
-                <Image source={option.image} style={styles.hairstyleImage} />
-                <Text style={[
-                  styles.cardLabel,
-                  toPrompt === option.value && styles.selectedCardLabel
-                ]}>{option.label}</Text>
-              </Pressable>
-            ))}
+      {/* Header with Gradient */}
+      <View style={styles.headerGradient}>
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <Text style={styles.appTitle}>💇 PuriStyle</Text>
+            <Text style={styles.subtitle}>AI-Powered Hair Transformation</Text>
           </View>
+          <Pressable style={styles.logoutButton} onPress={logout}>
+            <Text style={styles.logoutText}>🚪 Logout</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      {/* Dashboard Cards */}
+      <View style={styles.dashboardSection}>
+        {/* Welcome Card */}
+        <View style={styles.welcomeCard}>
+          <Text style={styles.welcomeText}>👋 Welcome back!</Text>
+          <Text style={styles.userEmail}>{auth.currentUser?.email}</Text>
+        </View>
+
+        {/* Stats Cards Row */}
+        <View style={styles.statsRow}>
+          <View style={[styles.statCard, styles.statCardPurple]}>
+            <Text style={styles.statNumber}>{totalTransformations}</Text>
+            <Text style={styles.statLabel}>Transformations</Text>
+            <Text style={styles.statIcon}>✨</Text>
+          </View>
+          
+          <View style={[styles.statCard, styles.statCardBlue]}>
+            <Text style={styles.statNumber}>{hairstyleOptions.length}</Text>
+            <Text style={styles.statLabel}>Hairstyles</Text>
+            <Text style={styles.statIcon}>💈</Text>
+          </View>
+          
+          <View style={[styles.statCard, styles.statCardGreen]}>
+            <Text style={styles.statNumber}>AI</Text>
+            <Text style={styles.statLabel}>Powered</Text>
+            <Text style={styles.statIcon}>🤖</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Quick Actions */}
+      <View style={styles.quickActionsSection}>
+        <Text style={styles.sectionTitle}>⚡ Quick Actions</Text>
+        <View style={styles.quickActionsGrid}>
+          <Pressable 
+            style={styles.quickActionCard} 
+            onPress={pickImage}
+            disabled={uploading}
+          >
+            <View style={styles.quickActionIcon}>
+              <Text style={styles.quickActionEmoji}>📸</Text>
+            </View>
+            <Text style={styles.quickActionText}>Upload Photo</Text>
+          </Pressable>
+          
+          <Pressable 
+            style={styles.quickActionCard}
+            onPress={() => setShowSettings(!showSettings)}
+          >
+            <View style={styles.quickActionIcon}>
+              <Text style={styles.quickActionEmoji}>⚙️</Text>
+            </View>
+            <Text style={styles.quickActionText}>Settings</Text>
+          </Pressable>
+          
+          <Pressable 
+            style={styles.quickActionCard}
+            onPress={handleGenerativeRemove}
+            disabled={!publicId}
+          >
+            <View style={[styles.quickActionIcon, !publicId && styles.disabledAction]}>
+              <Text style={styles.quickActionEmoji}>🗑️</Text>
+            </View>
+            <Text style={styles.quickActionText}>Remove Hair</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      {/* Transformation Settings - Collapsible */}
+      {showSettings && (
+        <View style={styles.settingsSection}>
+          <Text style={styles.sectionTitle}>🎨 Transformation Settings</Text>
+          
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>What to replace:</Text>
+            <TextInput
+              value={fromPrompt}
+              onChangeText={setFromPrompt}
+              placeholder="e.g. hairstyle, hat, shirt"
+              placeholderTextColor="#94a3b8"
+              style={styles.textInput}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* Hairstyle Selection */}
+      <View style={styles.hairstyleSection}>
+        <Text style={styles.sectionTitle}>💇‍♀️ Choose Your Style</Text>
+        <View style={styles.hairstyleGrid}>
+          {hairstyleOptions.map((option) => (
+            <Pressable
+              key={option.value}
+              style={[
+                styles.hairstyleCard,
+                toPrompt === option.value && styles.selectedCard
+              ]}
+              onPress={() => setToPrompt(option.value)}
+            >
+              <Image source={option.image} style={styles.hairstyleImage} />
+              <Text style={[
+                styles.cardLabel,
+                toPrompt === option.value && styles.selectedCardLabel
+              ]}>{option.label}</Text>
+              {toPrompt === option.value && (
+                <View style={styles.selectedBadge}>
+                  <Text style={styles.selectedBadgeText}>✓</Text>
+                </View>
+              )}
+            </Pressable>
+          ))}
         </View>
       </View>
 
       {/* Upload Section */}
-      <View style={styles.uploadSection}>
-        <Pressable style={styles.uploadButton} onPress={pickImage} disabled={uploading}>
-          <Text style={styles.uploadButtonText}>
-            {uploading ? "Processing..." : "📸 Pick & Transform Photo"}
-          </Text>
-        </Pressable>
-        
-        {uploading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#3b82f6" />
-            <Text style={styles.loadingText}>Applying AI magic...</Text>
-          </View>
-        )}
-      </View>
+      {uploading && (
+        <View style={styles.uploadingCard}>
+          <ActivityIndicator size="large" color="#3b82f6" />
+          <Text style={styles.loadingText}>✨ Applying AI magic...</Text>
+          <Text style={styles.loadingSubtext}>This may take a few seconds</Text>
+        </View>
+      )}
 
       {/* Results Section */}
       {(image || generativeUrl || removeUrl) && (
         <View style={styles.resultsSection}>
-          <Text style={styles.sectionTitle}>Results</Text>
+          <Text style={styles.sectionTitle}>🎉 Your Results</Text>
           
           <View style={styles.imageGrid}>
             {/* Original Image */}
             {image && (
               <View style={styles.imageCard}>
-                <Text style={styles.imageTitle}>Original</Text>
+                <View style={styles.imageHeader}>
+                  <Text style={styles.imageTitle}>Original</Text>
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>Before</Text>
+                  </View>
+                </View>
                 <Image source={{ uri: image }} style={styles.resultImage} />
               </View>
             )}
             
             {/* Generative Replace Image */}
             {generativeUrl && (
-              <View style={styles.imageCard}>
-                <Text style={styles.imageTitle}>AI Transform</Text>
+              <View style={[styles.imageCard, styles.featuredCard]}>
+                <View style={styles.imageHeader}>
+                  <Text style={styles.imageTitle}>AI Transform</Text>
+                  <View style={[styles.badge, styles.badgeSuccess]}>
+                    <Text style={styles.badgeText}>After ✨</Text>
+                  </View>
+                </View>
                 <Image source={{ uri: generativeUrl }} style={styles.resultImage} />
                 <Pressable 
                   style={styles.downloadButton}
                   onPress={() => downloadImage(generativeUrl, 'AI Transform')}
                 >
-                  <Text style={styles.downloadButtonText}>💾 Download</Text>
+                  <Text style={styles.downloadButtonText}>💾 Download Result</Text>
                 </Pressable>
               </View>
             )}
@@ -207,10 +286,15 @@ export default function Home() {
             {/* Generative Remove Image */}
             {removeUrl && (
               <View style={styles.imageCard}>
-                <Text style={styles.imageTitle}>AI Remove</Text>
+                <View style={styles.imageHeader}>
+                  <Text style={styles.imageTitle}>AI Remove</Text>
+                  <View style={[styles.badge, styles.badgeWarning]}>
+                    <Text style={styles.badgeText}>Removed</Text>
+                  </View>
+                </View>
                 <Image source={{ uri: removeUrl }} style={styles.resultImage} />
                 <Pressable 
-                  style={styles.downloadButton}
+                  style={[styles.downloadButton, styles.downloadButtonAlt]}
                   onPress={() => downloadImage(removeUrl, 'AI Remove')}
                 >
                   <Text style={styles.downloadButtonText}>💾 Download</Text>
@@ -220,6 +304,17 @@ export default function Home() {
           </View>
         </View>
       )}
+
+      {/* Empty State */}
+      {!image && !uploading && (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateIcon}>📷</Text>
+          <Text style={styles.emptyStateTitle}>Ready to Transform?</Text>
+          <Text style={styles.emptyStateText}>
+            Upload a photo and select a hairstyle to see the magic happen!
+          </Text>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -227,10 +322,20 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a', // Dark slate background
+    backgroundColor: '#0f172a',
   },
   contentContainer: {
-    paddingBottom: 30,
+    paddingBottom: 40,
+  },
+  headerGradient: {
+    backgroundColor: '#1e293b',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   header: {
     flexDirection: 'row',
@@ -238,66 +343,162 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingHorizontal: 20,
     paddingTop: 60,
-    paddingBottom: 20,
-    backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    paddingBottom: 30,
   },
   headerContent: {
     flex: 1,
   },
   appTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#ffffff',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#e2e8f0',
+    fontSize: 14,
+    color: '#94a3b8',
     opacity: 0.9,
   },
   logoutButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
   logoutText: {
-    color: '#ffffff',
+    color: '#fca5a5',
     fontSize: 14,
     fontWeight: '600',
+  },
+  dashboardSection: {
+    paddingHorizontal: 20,
+    marginTop: 20,
   },
   welcomeCard: {
     backgroundColor: '#1e293b',
-    marginHorizontal: 20,
-    marginTop: -10,
-    marginBottom: 20,
     padding: 20,
     borderRadius: 16,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#3b82f6',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   },
   welcomeText: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: '700',
+    color: '#f1f5f9',
+    marginBottom: 6,
+  },
+  userEmail: {
+    fontSize: 13,
+    color: '#94a3b8',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 20,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: '#1e293b',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    position: 'relative',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  statCardPurple: {
+    borderTopWidth: 3,
+    borderTopColor: '#a855f7',
+  },
+  statCardBlue: {
+    borderTopWidth: 3,
+    borderTopColor: '#3b82f6',
+  },
+  statCardGreen: {
+    borderTopWidth: 3,
+    borderTopColor: '#10b981',
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
     color: '#f1f5f9',
     marginBottom: 4,
   },
-  userEmail: {
-    fontSize: 14,
+  statLabel: {
+    fontSize: 11,
     color: '#94a3b8',
+    textAlign: 'center',
   },
-  inputSection: {
-    marginHorizontal: 20,
+  statIcon: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    fontSize: 20,
+    opacity: 0.3,
+  },
+  quickActionsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 24,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  quickActionCard: {
+    flex: 1,
+    backgroundColor: '#1e293b',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  quickActionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#334155',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  quickActionEmoji: {
+    fontSize: 28,
+  },
+  quickActionText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#cbd5e1',
+    textAlign: 'center',
+  },
+  disabledAction: {
+    opacity: 0.4,
+  },
+  settingsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 24,
+  },
+  hairstyleSection: {
+    paddingHorizontal: 20,
     marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#f1f5f9',
     marginBottom: 16,
   },
@@ -306,106 +507,33 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
     color: '#cbd5e1',
     marginBottom: 8,
   },
   textInput: {
-    backgroundColor: '#334155',
+    backgroundColor: '#1e293b',
     borderWidth: 1,
-    borderColor: '#475569',
+    borderColor: '#334155',
     borderRadius: 12,
     padding: 16,
-    fontSize: 16,
+    fontSize: 15,
     color: '#f1f5f9',
     minHeight: 50,
-  },
-  uploadSection: {
-    marginHorizontal: 20,
-    marginBottom: 24,
-  },
-  uploadButton: {
-    backgroundColor: '#3b82f6',
-    padding: 18,
-    borderRadius: 16,
-    alignItems: 'center',
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  uploadButtonText: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  loadingContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  loadingText: {
-    color: '#94a3b8',
-    fontSize: 16,
-    marginTop: 12,
-  },
-  resultsSection: {
-    marginHorizontal: 20,
-  },
-  imageGrid: {
-    gap: 16,
-  },
-  imageCard: {
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 6,
-    marginBottom: 16,
-  },
-  imageTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#f1f5f9',
-    marginBottom: 12,
-  },
-  resultImage: {
-    width: 280,
-    height: 280,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  downloadButton: {
-    backgroundColor: '#10b981',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
-    minWidth: 140,
-    alignItems: 'center',
-  },
-  downloadButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
   },
   hairstyleGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
-    marginTop: 8,
   },
   hairstyleCard: {
     backgroundColor: '#1e293b',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 85,
-    minHeight: 85,
+    minHeight: 100,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -413,18 +541,20 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderWidth: 2,
     borderColor: 'transparent',
+    position: 'relative',
   },
   selectedCard: {
-    backgroundColor: '#3b82f6',
-    borderColor: '#60a5fa',
+    backgroundColor: '#1e40af',
+    borderColor: '#3b82f6',
     shadowColor: '#3b82f6',
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.4,
+    transform: [{ scale: 1.05 }],
   },
   hairstyleImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    marginBottom: 6,
+    width: 54,
+    height: 54,
+    borderRadius: 12,
+    marginBottom: 8,
   },
   cardLabel: {
     fontSize: 11,
@@ -435,7 +565,148 @@ const styles = StyleSheet.create({
   },
   selectedCardLabel: {
     color: '#ffffff',
+    fontWeight: '700',
+  },
+  selectedBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#10b981',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedBadgeText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  uploadingCard: {
+    marginHorizontal: 20,
+    backgroundColor: '#1e293b',
+    borderRadius: 20,
+    padding: 32,
+    alignItems: 'center',
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#3b82f6',
+    borderStyle: 'dashed',
+  },
+  loadingText: {
+    color: '#f1f5f9',
+    fontSize: 18,
+    marginTop: 16,
     fontWeight: '600',
+  },
+  loadingSubtext: {
+    color: '#94a3b8',
+    fontSize: 14,
+    marginTop: 8,
+  },
+  resultsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 24,
+  },
+  imageGrid: {
+    gap: 20,
+  },
+  imageCard: {
+    backgroundColor: '#1e293b',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  featuredCard: {
+    borderWidth: 2,
+    borderColor: '#3b82f6',
+  },
+  imageHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  imageTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#f1f5f9',
+  },
+  badge: {
+    backgroundColor: '#334155',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  badgeSuccess: {
+    backgroundColor: '#10b981',
+  },
+  badgeWarning: {
+    backgroundColor: '#f59e0b',
+  },
+  badgeText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  resultImage: {
+    width: '100%',
+    height: 320,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  downloadButton: {
+    backgroundColor: '#3b82f6',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+    shadowColor: '#3b82f6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  downloadButtonAlt: {
+    backgroundColor: '#10b981',
+  },
+  downloadButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  emptyState: {
+    marginHorizontal: 20,
+    marginTop: 40,
+    padding: 40,
+    alignItems: 'center',
+    backgroundColor: '#1e293b',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#334155',
+    borderStyle: 'dashed',
+  },
+  emptyStateIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#f1f5f9',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyStateText: {
+    fontSize: 14,
+    color: '#94a3b8',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });
 
